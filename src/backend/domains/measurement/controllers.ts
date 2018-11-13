@@ -13,6 +13,6 @@ export function createMeassurement(req: express.Request, res: express.Response) 
     if (error) {
         throw error;
     }
-    
+
     res.send(measurement);
 }
