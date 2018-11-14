@@ -1,10 +1,12 @@
 import { registerHandler, EventType } from '../../eventDispatcher';
 import { IMeasurement } from '../measurement/model';
 import { devices } from './model';
-const onMeasurementCreated = async (measurement: IMeasurement) => {
+
+const createNewActiveDevice = async (measurement: IMeasurement) => {
+    
     const deviceId = measurement.deviceId;
     const device = await devices.get('id', deviceId);
-    console.log(device);
+
     if (!device) {
         devices.put({
             id: deviceId,
@@ -12,4 +14,4 @@ const onMeasurementCreated = async (measurement: IMeasurement) => {
     }
 }
 
-registerHandler(EventType.measurementCreated, onMeasurementCreated);
+registerHandler(EventType.measurementCreated, createNewActiveDevice);

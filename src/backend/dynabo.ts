@@ -12,13 +12,14 @@ export interface ITable<Type> {
     get: <HashKey extends keyof Type, RangeKey extends keyof Type>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<Type>,
     put: (value: Type) => Promise<void>,
     query: <HashKey extends keyof Type>(hashKey: HashKey & string, hashValue: Type[HashKey] | number, rangeKey: keyof Type & string, rangeExpression?: string, rangeValues?: { [key: string]: any }) => Promise<Type[]>,
+    scan: () => Promise<Type[]>,
 }
 
 export const table = <Type>(name: string): ITable<Type> => ({
     get: async (hashKey, hashValue, rangeKey?, rangeValue?) => await get(table_prefix + name, hashKey, hashValue, rangeKey, rangeValue) as Type,
     put: async (value) => await put(table_prefix + name, value),
     query: async (hashKey, hashValue, rangeKey?, rangeExpression?, rangeValues?) => await query(table_prefix + name, hashKey, hashValue, rangeKey, rangeExpression, rangeValues) as Type[],
-    //scan: async () => await scan(table_prefix + name),
+    scan: async () => await scan(table_prefix + name) as Type[],
     //update: async (value: Type) => await update(table_prefix + name, value),
 })
 
@@ -64,15 +65,15 @@ const query = async (table: string, hashKey: string, hashValue: any, rangeKey?: 
     }).promise()).Items!;
 }
 
-/*
+
 // TODO build filter expressions
 const scan = async (table: string) => {
     console.log('dynabo scan', table);
-    return await documentClient.scan({
+    return (await documentClient.scan({
         TableName: table,
-    }).promise();
+    }).promise()).Items;
 }
-
+/*
 // TODO AttributeUpdates is legacy, rewrite to use UpdateExpression
 const update = async (table: string, value: any) => {
     console.log('dynabo update', table, value);
