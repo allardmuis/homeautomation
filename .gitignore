@@ -69,3 +69,4 @@ docker-compose.yml
 
 # compiled stuff
 build
+package.zip
