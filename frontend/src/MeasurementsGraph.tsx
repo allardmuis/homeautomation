@@ -41,7 +41,7 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
     public render() {
         return <>
             {this.state.measurements.length > 0 &&
-                <HighchartsChart>
+                <HighchartsChart time={{useUTC: false}}>
                     <Chart height={600} />
                     <XAxis type="datetime">
                         <XAxis.Title>Time</XAxis.Title>
