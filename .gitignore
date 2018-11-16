@@ -71,3 +71,4 @@ docker-compose.yml
 build
 package.zip
 .terraform
+terraform/plan

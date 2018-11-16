@@ -9,7 +9,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 const table_prefix = process.env.TABLE_PREFIX || '';
 
 export interface ITable<Type> {
-    get: <HashKey extends keyof Type, RangeKey extends keyof Type>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<Type>,
+    get: <HashKey extends keyof Type, RangeKey extends keyof Type>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<Type | null>,
     put: (value: Type) => Promise<void>,
     query: <HashKey extends keyof Type>(hashKey: HashKey & string, hashValue: Type[HashKey] | number, rangeKey: keyof Type & string, rangeExpression?: string, rangeValues?: { [key: string]: any }) => Promise<Type[]>,
     scan: () => Promise<Type[]>,

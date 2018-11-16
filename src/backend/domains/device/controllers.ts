@@ -1,10 +1,32 @@
 import * as express from 'express';
-import { devices } from './model';
+import { devices, IDevice } from './model';
 import { measurements } from '../measurement/model';
+import * as Joi from 'joi';
+
+const deviceScheme = Joi.object({
+    id: Joi.number().min(0).max(100),
+    name: Joi.string(),
+    location: Joi.string(),
+});
+
 
 export async function listDevices(req: express.Request, res: express.Response) {
     const list = await devices.getAll();
     res.send(list);
+}
+
+export async function getDevice(req: express.Request, res: express.Response) {
+    const device = await devices.getOne(parseInt(req.params.id, 10));
+    res.send(device);
+}
+
+export async function updateDevice(req: express.Request, res: express.Response) {
+    const { value: device, error } = Joi.validate<IDevice>(req.body, deviceScheme);
+    if (error) {
+        throw error;
+    }
+    //await devices.update
+    res.send(device);
 }
 
 export async function listMeasurements(req: express.Request, res: express.Response) {

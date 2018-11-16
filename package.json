@@ -12,7 +12,7 @@
     "watch-node": "nodemon -r dotenv/config build/server.js",
     "watch-ts": "tsc --build tsconfig.json -w",
     "npm-install-dist": "cp package*.json build/ && cd build && npm install --prefer-offline --no-save --production",
-    "build-package": "rm -f package.zip && rm -rf build/* && npm run npm-install-dist && npm run build-ts && cd build && zip -r ../package.zip * && cd .. && rm -rf build/*"
+    "build-package": "rm -f package.zip && rm -rf build/* && npm run npm-install-dist && npm run build-ts && cd frontend && npm run build && cd ../build && cp -r ../frontend/build public && zip -r ../package.zip * && cd .. && rm -rf build/*"
   },
   "dependencies": {
     "aws-sdk": "~2.354.0",
