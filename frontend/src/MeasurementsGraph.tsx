@@ -12,7 +12,8 @@ interface IMeasurementsTableProps {
 interface IMeasurementsTableState {
     start: number;
     end: number;
-    measurements: IMeasurement[];
+    measurements: IMeasurement[] | null;
+    numberOfHours: number;
 }
 
 interface IMeasurement {
@@ -29,18 +30,36 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
 
         this.state = {
             end: new Date().getTime(),
-            measurements: [],
-            start: moment().subtract(1, 'days').valueOf(),
+            measurements: null,
+            numberOfHours: 4,
+            start: moment().subtract(4, 'hours').valueOf(),
         }
     }
 
     public componentWillMount() {
-        this.loadMeasurements(this.props.deviceId);
+        this.loadMeasurements();
     }
 
     public render() {
         return <>
-            {this.state.measurements.length > 0 &&
+            <select value={this.state.numberOfHours} onChange={e => this.setNumberOfHours(e.target.value as any as number)}>
+                <option label="1 hour1" value={1} />
+                <option label="4 hours" value={4} />
+                <option label="8 hours" value={8} />
+                <option label="12 hours" value={12} />
+                <option label="24 hours" value={24} />
+                <option label="48 hours" value={48} />
+                <option label="168 hours" value={168} />
+            </select>
+            <a href="#" onClick={() => this.loadEarlier()}>Earlier</a>
+            <a href="#" onClick={() => this.loadLater()}>Later</a>
+            {!this.state.measurements &&
+                <span>Loading...</span>
+            }
+            {this.state.measurements && this.state.measurements.length === 0 &&
+                <span>No data</span>
+            }
+            {this.state.measurements && this.state.measurements.length > 0 &&
                 <HighchartsChart time={{useUTC: false}}>
                     <Chart height={600} />
                     <XAxis type="datetime">
@@ -77,8 +96,9 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
     }
 
 
-    private async loadMeasurements(deviceId: number) {
-        const response = await apiRequest('GET', '/devices/' + deviceId + '/measurements', { from: this.state.start, to: this.state.end });
+    private async loadMeasurements() {
+        this.setState({ measurements: null });
+        const response = await apiRequest('GET', '/devices/' + this.props.deviceId + '/measurements', { from: this.state.start, to: this.state.end });
 
         if (response.status === 200) {
             const measurements: IMeasurement[] = [];
@@ -101,6 +121,30 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
                 measurements,
             })
         }
+    }
+
+    private setNumberOfHours(hours: number) {
+        this.setState({
+            end: new Date().getTime(),
+            numberOfHours: hours,
+            start: moment().subtract(hours, 'hours').valueOf(),
+        }, () => this.loadMeasurements());
+    }
+
+    private loadEarlier() {
+        const newEnd = moment(this.state.end).subtract(this.state.numberOfHours / 2, 'hours');
+        this.setState({
+            end: newEnd.valueOf(),
+            start: newEnd.subtract(this.state.numberOfHours, 'hours').valueOf(),
+        }, () => this.loadMeasurements());
+    }
+
+    private loadLater() {
+        const newEnd = moment(this.state.end).add(this.state.numberOfHours / 2, 'hours');
+        this.setState({
+            end: newEnd.valueOf(),
+            start: newEnd.subtract(this.state.numberOfHours, 'hours').valueOf(),
+        }, () => this.loadMeasurements());
     }
 }
 

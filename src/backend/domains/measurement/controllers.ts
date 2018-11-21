@@ -10,7 +10,6 @@ const measurementScheme = Joi.object({
 });
 
 export async function createMeassurement(req: express.Request, res: express.Response) {
-    
     const { value: measurement, error } = Joi.validate<IMeasurement>(req.body, measurementScheme);
     if (error) {
         throw error;

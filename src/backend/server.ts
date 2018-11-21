@@ -5,6 +5,7 @@ import * as path from 'path';
 import { errorHandler } from './errorHandler';
 import { createServer, proxy } from 'aws-serverless-express';
 import { deviceRoutes } from './domains/device/routes';
+import { roomRoutes } from './domains/room/routes';
 
 
 const PORT = process.env.PORT || 5000
@@ -16,6 +17,7 @@ function loadApp() {
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use((req, res, next) => {
         res.header("Access-Control-Allow-Origin", process.env.ALLOW_CORS);
+        res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
       });
@@ -31,6 +33,7 @@ function loadApp() {
 function loadRoutes(app: express.Express) {
     app.use('/measurements', measurementRoutes);
     app.use('/devices', deviceRoutes);
+    app.use('/rooms', roomRoutes);
 }
 
 const app = loadApp();

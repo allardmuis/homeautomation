@@ -25,7 +25,8 @@ export async function updateDevice(req: express.Request, res: express.Response) 
     if (error) {
         throw error;
     }
-    //await devices.update
+    const { id, ...updates } = device;
+    await devices.updateOne(device.id, updates);
     res.send(device);
 }
 

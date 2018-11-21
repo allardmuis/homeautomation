@@ -9,21 +9,24 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 const table_prefix = process.env.TABLE_PREFIX || '';
 
 export interface ITable<Type> {
-    get: <HashKey extends keyof Type, RangeKey extends keyof Type>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<Type | null>,
+    delete: <HashKey extends keyof Type & string, RangeKey extends keyof Type & string>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<void>,
+    get: <HashKey extends keyof Type & string, RangeKey extends keyof Type & string>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<Type | null>,
     put: (value: Type) => Promise<void>,
     query: <HashKey extends keyof Type>(hashKey: HashKey & string, hashValue: Type[HashKey] | number, rangeKey: keyof Type & string, rangeExpression?: string, rangeValues?: { [key: string]: any }) => Promise<Type[]>,
     scan: () => Promise<Type[]>,
+    update: <HashKey extends keyof Type & string, RangeKey extends keyof Type & string>(hashkey: HashKey, hashValue: Type[HashKey], updates: {[key: string]: any}, rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<void>,
 }
 
 export const table = <Type>(name: string): ITable<Type> => ({
+    delete: async (hashKey, hashValue, rangeKey?, rangeValue?) => await del(table_prefix + name, hashKey, hashValue, rangeKey, rangeValue),
     get: async (hashKey, hashValue, rangeKey?, rangeValue?) => await get(table_prefix + name, hashKey, hashValue, rangeKey, rangeValue) as Type,
     put: async (value) => await put(table_prefix + name, value),
     query: async (hashKey, hashValue, rangeKey?, rangeExpression?, rangeValues?) => await query(table_prefix + name, hashKey, hashValue, rangeKey, rangeExpression, rangeValues) as Type[],
     scan: async () => await scan(table_prefix + name) as Type[],
-    //update: async (value: Type) => await update(table_prefix + name, value),
+    update: async (hashKey, hashValue, updates, rangeKey?, rangeValue?) => await update(table_prefix + name, hashKey, hashValue, updates, rangeKey, rangeValue),
 })
 
-const get = async (table: string, hashKey: any, hashValue: any, rangeKey?: any, rangeValue?: any) => {
+const get = async (table: string, hashKey: string, hashValue: any, rangeKey?: string, rangeValue?: any) => {
     console.log('dynabo get', table, hashKey, hashValue, rangeKey, rangeValue);
     const key = {
         [hashKey]: hashValue
@@ -73,16 +76,48 @@ const scan = async (table: string) => {
         TableName: table,
     }).promise()).Items;
 }
-/*
-// TODO AttributeUpdates is legacy, rewrite to use UpdateExpression
-const update = async (table: string, value: any) => {
-    console.log('dynabo update', table, value);
-    return; await documentClient.update({
+
+const update = async (table: string, hashKey: string, hashValue: any, updates: {[key: string]: any}, rangeKey?: string, rangeValue?: any) => {
+    
+    const key = {
+        [hashKey]: hashValue,
+    };
+    if (rangeKey && rangeValue) {
+        key[rangeKey] = rangeValue;
+    }
+    const updateExpression = 'SET ' + Object.keys(updates).map(key => '#' + key + ' = :' + key).join(', ');
+    const expressionAttributeValues: {[key: string]: string} = {};
+    const expressionAttributeNames: {[key: string]: string} = {};
+    for (const key of Object.keys(updates)) {
+        expressionAttributeNames['#' + key] = key;
+        expressionAttributeValues[':' + key] = updates[key];
+    }
+
+    console.log('dynabo update', table, key, updateExpression, expressionAttributeNames, expressionAttributeValues);
+    await documentClient.update({
         TableName: table,
-        AttributeUpdates: value,
+        Key: key,
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
     }).promise();
 }
-*/
+
+const del = async (table: string, hashKey: string, hashValue: any, rangeKey?: string, rangeValue?: any) => {
+    const key = {
+        [hashKey]: hashValue,
+    };
+    if (rangeKey && rangeValue) {
+        key[rangeKey] = rangeValue;
+    }
+
+    console.log('dynabo delete', table, key);
+    await documentClient.delete({
+        TableName: table,
+        Key: key
+    });
+}
+
 export const createTable = async (name: string, keys: {[key: string]: 'N' | 'S'}) => {
     await dynamodb.createTable({
         TableName: table_prefix + name,

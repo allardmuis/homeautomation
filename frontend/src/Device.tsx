@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { match } from 'react-router-dom';
-import { apiRequest, IParams } from './api';
+import { apiRequest } from './api';
 import { EditField } from './EditField';
 import { MeasurementsGraph } from './MeasurementsGraph';
 import { MeasurementsTable } from './MeasurementsTable';
@@ -9,7 +9,7 @@ interface IDeviceProps {
     match: match<{ id: string }>
 }
 
-interface IDevice {
+export interface IDevice {
     id: number;
     name?: string;
     location?: string;
@@ -94,9 +94,8 @@ export class Device extends React.Component<IDeviceProps, IDeviceState> {
     }
 
     private update(name: keyof IDevice, value: string) {
-        this.setState({
-            device: { ...this.state.device!, [name]: value }
-        });
-        apiRequest('POST', '/devices/' + this.state.device!.id, this.state.device as unknown as IParams);
+        const device = { ...this.state.device!, [name]: value };
+        this.setState({ device });
+        apiRequest('POST', '/devices/' + this.state.device!.id, {[name]: value});
     }
 }
