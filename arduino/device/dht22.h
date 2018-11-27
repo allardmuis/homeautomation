@@ -2,8 +2,8 @@
 #define DHTTYPE DHT22
 
 struct Measurement {
-    int temperature;
-    int humidity;
+    float temperature;
+    float humidity;
 };
 
 DHT* dht;
@@ -17,8 +17,6 @@ void setupDHT22() {
 Measurement readDHT22() {
     float h = dht->readHumidity();
     float t = dht->readTemperature();
-    int temperature = int(t * 10);
-    int humidity = int(h * 10);
 
-    return { temperature, humidity };
+    return { t, h };
 }

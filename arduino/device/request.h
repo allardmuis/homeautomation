@@ -3,7 +3,7 @@ struct Response {
     String body;
 };
 
-Response makeRequest(String host, String httpMethod, String url, String data="") {
+Response makeRequest(const char* host, String httpMethod, String url, String data="") {
     WiFiClientSecure client;
     if (!client.connect(host, 443)) {
         return {
