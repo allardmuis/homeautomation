@@ -2,7 +2,6 @@ import * as express from 'express';
 import * as  bodyParser from 'body-parser';
 import { measurementRoutes } from './domains/measurement/routes';
 import * as path from 'path';
-import { errorHandler } from './errorHandler';
 import { createServer, proxy } from 'aws-serverless-express';
 import { deviceRoutes } from './domains/device/routes';
 import { roomRoutes } from './domains/room/routes';
@@ -25,7 +24,6 @@ function loadApp() {
     loadRoutes(app);
 
     app.use(express.static(path.join(__dirname, 'public')));
-    app.use(errorHandler);
 
     return app;
 }

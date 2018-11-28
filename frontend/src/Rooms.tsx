@@ -1,5 +1,6 @@
 import * as  moment from 'moment';
 import * as React from 'react';
+import { NavLink } from "react-router-dom";
 import { apiRequest, IParams } from './api';
 import { IDevice } from './Device';
 
@@ -53,7 +54,11 @@ export class Rooms extends React.Component<{}, IRoomListState> {
                     <div className="card" style={{width: '18rem'}}>
                         <div className="card-body">
                             <h5 className="card-title">{room.name}</h5>
-                            <dt>Device</dt><dd>{(this.state.devices.find(device => device.id === room.deviceId) || {name: ''}).name}</dd>
+                            <dt>Device</dt><dd>
+                                {this.state.devices.length > 0 && room.deviceId && 
+                                    <NavLink to={`/devices/${room.deviceId}`}>{this.state.devices.find(device => device.id === room.deviceId)!.name}</NavLink>
+                                }
+                            </dd>
                             <dt>Current temperature</dt><dd>{room.currentTemerature || '?'}</dd>
                             <dt>Current humidity</dt><dd>{room.currentHumidity || '?'}</dd>
                             <dt>Last meassurement</dt><dd>{room.lastMeasurement ? moment(room.lastMeasurement).format('YYYY-MM-DD HH:mm:ss') : '?'}</dd>
