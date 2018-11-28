@@ -1,7 +1,7 @@
 import * as Highcharts from 'highcharts';
 import * as moment from 'moment';
 import * as React from 'react';
-import { Chart, HighchartsChart, LineSeries, withHighcharts, XAxis, YAxis,  } from 'react-jsx-highcharts';
+import { Chart, HighchartsChart, Legend, LineSeries, Tooltip, withHighcharts, XAxis, YAxis } from 'react-jsx-highcharts';
 import { apiRequest } from './api';
 
 
@@ -21,6 +21,12 @@ interface IMeasurement {
     timestamp: number;
     temperature?: number | null;
     humidity?: number | null;
+    group1?: number | null;
+    group2?: number | null;
+    group3?: number | null;
+    group4?: number | null;
+    group5?: number | null;
+    incoming?: number | null;
 }
 
 class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IMeasurementsTableState> {
@@ -43,7 +49,7 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
     public render() {
         return <>
             <select value={this.state.numberOfHours} onChange={e => this.setNumberOfHours(e.target.value as any as number)}>
-                <option label="1 hour1" value={1} />
+                <option label="1 hour" value={1} />
                 <option label="4 hours" value={4} />
                 <option label="8 hours" value={8} />
                 <option label="12 hours" value={12} />
@@ -65,7 +71,7 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
                     <XAxis type="datetime">
                         <XAxis.Title>Time</XAxis.Title>
                     </XAxis>
-
+                    <Tooltip />
                     <YAxis labels={{
                         style: {
                             color: '#ff5517',
@@ -74,9 +80,18 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
                         <YAxis.Title style={{
                             color: '#ff5517',
                         }}>Temperature</YAxis.Title>
-                        <LineSeries 
-                            lineColor="#ff5517"
-                            data={this.state.measurements.map(measurement => ([measurement.timestamp, measurement.temperature]))} />
+                        {['temperature', 'group1', 'group2', 'group3', 'group4', 'group5', 'incoming'].map((key, i) => 
+                            this.state.measurements!.filter(measurement => measurement[key] !== undefined).length > 0 &&
+                            <LineSeries 
+                                key={key}
+                                color={"#ff" + (20+i*10) + (10+i*5)}
+                                name={key}
+                                marker={{enabled: false}}
+                                data={this.state.measurements!
+                                    .filter(measurement => measurement[key] !== undefined)
+                                    .map(measurement => ([measurement.timestamp, measurement[key]]))
+                                } />
+                        )}
                     </YAxis>
                     <YAxis opposite={true} labels={{
                         style: {
@@ -87,9 +102,15 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
                             color: '#4f87fe',
                         }}>Humidity</YAxis.Title>
                         <LineSeries
-                            lineColor="#4f87fe"
-                            data={this.state.measurements.map(measurement => ([measurement.timestamp, measurement.humidity]))} />
+                            color="#4f87fe"
+                            name="humidity"
+                            marker={{enabled: false}}
+                            data={this.state.measurements
+                                .filter(measurement => measurement.humidity !== undefined)
+                                .map(measurement => ([measurement.timestamp, measurement.humidity]))
+                            } />
                     </YAxis>
+                    <Legend />
                 </HighchartsChart>
             }
         </>

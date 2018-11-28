@@ -3,7 +3,7 @@ import { rooms, IRoom } from './model';
 import * as Joi from 'joi';
 
 const roomScheme = Joi.object({
-    id: Joi.number().min(0).max(100),
+    id: Joi.number().min(0).max(100).required(),
     name: Joi.string(),
     deviceId: Joi.number().min(0).max(100),
     targetTemperature: Joi.number().min(10).max(25),

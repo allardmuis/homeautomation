@@ -1,10 +1,16 @@
 import { createTable, table, ITable } from "../../dynabo";
 
 export interface IMeasurement {
-    temperature?: number;
-    humidity?: number;
     deviceId: number;
     timestamp: number;
+    temperature?: number;
+    humidity?: number;
+    group1?: number;
+    group2?: number;
+    group3?: number;
+    group4?: number;
+    group5?: number;
+    incoming?: number;
 }
 
 interface IMeasurementTable extends ITable<IMeasurement> {

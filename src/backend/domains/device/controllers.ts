@@ -4,7 +4,7 @@ import { measurements } from '../measurement/model';
 import * as Joi from 'joi';
 
 const deviceScheme = Joi.object({
-    id: Joi.number().min(0).max(100),
+    id: Joi.number().min(0).max(100).required(),
     name: Joi.string(),
     location: Joi.string(),
 });

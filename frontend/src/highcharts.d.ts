@@ -9,6 +9,7 @@ declare  module 'react-jsx-highcharts' {
     export const YAxis: any;
     export const LineSeries: any;
     export const withHighcharts: any;
+    export const Tooltip: any;
 }
 
 declare  module 'highcharts' {
