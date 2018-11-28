@@ -43,7 +43,13 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
     }
 
     public componentWillMount() {
-        this.loadMeasurements();
+        this.loadMeasurements(this.props.deviceId);
+    }
+
+    public async componentWillReceiveProps(newProps: IMeasurementsTableProps) {
+        if (newProps.deviceId !== this.props.deviceId) {
+            await this.loadMeasurements(newProps.deviceId);
+        }
     }
 
     public render() {
@@ -117,9 +123,9 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
     }
 
 
-    private async loadMeasurements() {
+    private async loadMeasurements(deviceId: number) {
         this.setState({ measurements: null });
-        const response = await apiRequest('GET', '/devices/' + this.props.deviceId + '/measurements', { from: this.state.start, to: this.state.end });
+        const response = await apiRequest('GET', '/devices/' + deviceId + '/measurements', { from: this.state.start, to: this.state.end });
 
         if (response.status === 200) {
             const measurements: IMeasurement[] = [];
@@ -149,7 +155,7 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
             end: new Date().getTime(),
             numberOfHours: hours,
             start: moment().subtract(hours, 'hours').valueOf(),
-        }, () => this.loadMeasurements());
+        }, () => this.loadMeasurements(this.props.deviceId));
     }
 
     private loadEarlier() {
@@ -157,7 +163,7 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
         this.setState({
             end: newEnd.valueOf(),
             start: newEnd.subtract(this.state.numberOfHours, 'hours').valueOf(),
-        }, () => this.loadMeasurements());
+        }, () => this.loadMeasurements(this.props.deviceId));
     }
 
     private loadLater() {
@@ -165,7 +171,7 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
         this.setState({
             end: newEnd.valueOf(),
             start: newEnd.subtract(this.state.numberOfHours, 'hours').valueOf(),
-        }, () => this.loadMeasurements());
+        }, () => this.loadMeasurements(this.props.deviceId));
     }
 }
 

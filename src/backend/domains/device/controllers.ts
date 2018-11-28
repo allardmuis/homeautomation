@@ -4,7 +4,7 @@ import { measurements } from '../measurement/model';
 import * as Joi from 'joi';
 
 const deviceScheme = Joi.object({
-    id: Joi.number().min(0).max(100).required(),
+    id: Joi.number().min(0).max(100),
     name: Joi.string(),
     location: Joi.string(),
 });
@@ -25,8 +25,9 @@ export async function updateDevice(req: express.Request, res: express.Response) 
     if (error) {
         throw error;
     }
+    const deviceId = parseInt(req.params.id, 10);
     const { id, ...updates } = device;
-    await devices.updateOne(device.id, updates);
+    await devices.updateOne(deviceId, updates);
     res.send(device);
 }
 

@@ -5,6 +5,7 @@ import * as path from 'path';
 import { createServer, proxy } from 'aws-serverless-express';
 import { deviceRoutes } from './domains/device/routes';
 import { roomRoutes } from './domains/room/routes';
+import { groupRoutes } from './domains/group/routes';
 
 
 const PORT = process.env.PORT || 5000
@@ -32,6 +33,7 @@ function loadRoutes(app: express.Express) {
     app.use('/measurements', measurementRoutes);
     app.use('/devices', deviceRoutes);
     app.use('/rooms', roomRoutes);
+    app.use('/groups', groupRoutes);
 }
 
 const app = loadApp();

@@ -51,7 +51,7 @@ export class Rooms extends React.Component<{}, IRoomListState> {
             <div className="col">
                 {!this.state.rooms && <span>Loading...</span>}
                 {this.state.rooms && this.state.rooms.map(room => 
-                    <div className="card" style={{width: '18rem'}}>
+                    <div className="card" style={{width: '18rem'}} key={room.id}>
                         <div className="card-body">
                             <h5 className="card-title">{room.name}</h5>
                             <dt>Device</dt><dd>
@@ -70,7 +70,7 @@ export class Rooms extends React.Component<{}, IRoomListState> {
                     <div className="card" style={{width: '18rem'}}>
                         <div className="card-body">
                             <h5 className="card-title">Add room</h5>
-                            <label>Id: <input type="text" value={this.state.addRoom.id} onChange={(e) => this.changeAdd('id', parseInt(e.target.value, 10))} /></label>
+                            <label>Id: <input type="number" value={this.state.addRoom.id} onChange={(e) => this.changeAdd('id', parseInt(e.target.value, 10))} /></label>
                             <label>Name: <input type="text" value={this.state.addRoom.name || ''} onChange={(e) => this.changeAdd('name', e.target.value)} /></label>
                             <label>Device: <select value={this.state.addRoom.deviceId} onChange={(e) => this.changeAdd('deviceId', e.target.value as any as number)} >
                                     <option />
