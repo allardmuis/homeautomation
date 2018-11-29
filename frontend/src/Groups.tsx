@@ -66,7 +66,7 @@ export class Groups extends React.Component<{}, IGroupListState> {
                         </div>
                     </div>
                 )}
-                {this.state.groups && !this.state.addGroup && <a href="#" onClick={() => this.setState({ addGroup: { id: (this.state.groups!.map(group => group.id).sort()[0] || 0) + 1} })}>Add group</a>}
+                {this.state.groups && !this.state.addGroup && <a href="#" onClick={() => this.setState({ addGroup: { id: (this.state.groups!.map(group => group.id).sort((a, b) => b - a)[0] || 0) + 1} })}>Add group</a>}
                 {this.state.addGroup &&
                     <div className="card" style={{width: '18rem'}}>
                         <div className="card-body">
