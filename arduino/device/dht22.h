@@ -1,6 +1,9 @@
 #define DHTPIN 4
 #define DHTTYPE DHT22
 
+#include <DHT.h>
+#include <DHT_U.h>
+
 struct Measurement {
     float temperature;
     float humidity;
