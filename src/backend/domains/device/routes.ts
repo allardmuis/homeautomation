@@ -7,4 +7,5 @@ export const deviceRoutes = express.Router();
 deviceRoutes.get('/', asyncRoute(controllers.listDevices));
 deviceRoutes.get('/:id', asyncRoute(controllers.getDevice));
 deviceRoutes.post('/:id', asyncRoute(controllers.updateDevice));
+deviceRoutes.delete('/:id', asyncRoute(controllers.deleteDevice));
 deviceRoutes.get('/:id/measurements', asyncRoute(controllers.listMeasurements));

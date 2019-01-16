@@ -8,11 +8,12 @@ const dynamodb = new AWS.DynamoDB();
 const documentClient = new AWS.DynamoDB.DocumentClient();
 const table_prefix = process.env.TABLE_PREFIX || '';
 
+
 export interface ITable<Type> {
     delete: <HashKey extends keyof Type & string, RangeKey extends keyof Type & string>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<void>,
     get: <HashKey extends keyof Type & string, RangeKey extends keyof Type & string>(hashkey: HashKey, hashValue: Type[HashKey], rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<Type | null>,
     put: (value: Type) => Promise<void>,
-    query: <HashKey extends keyof Type>(hashKey: HashKey & string, hashValue: Type[HashKey] | number, rangeKey: keyof Type & string, rangeExpression?: string, rangeValues?: { [key: string]: any }) => Promise<Type[]>,
+    query: <HashKey extends keyof Type>(hashKey: HashKey & string, hashValue: Type[HashKey] | number, rangeKey?: keyof Type & string, rangeExpression?: string, rangeValues?: { [key: string]: any }) => Promise<Type[]>,
     scan: () => Promise<Type[]>,
     update: <HashKey extends keyof Type & string, RangeKey extends keyof Type & string>(hashkey: HashKey, hashValue: Type[HashKey], updates: {[key: string]: any}, rangeKey?: RangeKey, rangeValue?: Type[RangeKey]) => Promise<void>,
 }
@@ -114,11 +115,23 @@ const del = async (table: string, hashKey: string, hashValue: any, rangeKey?: st
     console.log('dynabo delete', table, key);
     await documentClient.delete({
         TableName: table,
-        Key: key
-    });
+        Key: key,
+    }).promise();
 }
 
-export const createTable = async (name: string, keys: {[key: string]: 'N' | 'S'}) => {
+interface ITableOptions {
+    readCapacityUnits?: number;
+    writeCapacityUnits?: number;
+    ttlAttribute?: string;
+}
+
+export const createTable = async (name: string, keys: {[key: string]: 'N' | 'S'}, options?: ITableOptions) => {
+    
+    const tables = await dynamodb.listTables().promise();
+    if (tables.TableNames && tables.TableNames.includes(table_prefix + name)) {
+        return;
+    }
+
     await dynamodb.createTable({
         TableName: table_prefix + name,
         AttributeDefinitions: Object.keys(keys).map(key => (
@@ -134,10 +147,22 @@ export const createTable = async (name: string, keys: {[key: string]: 'N' | 'S'}
             }
         )),
         ProvisionedThroughput: {
-            ReadCapacityUnits: 1, 
-            WriteCapacityUnits: 1,
+            ReadCapacityUnits: options && options.readCapacityUnits || 1, 
+            WriteCapacityUnits: options && options.writeCapacityUnits || 1,
         },
     }).promise();
+    
+    if (options && options.ttlAttribute) {
+        await new Promise(resolve => setTimeout(resolve, 10000));
+
+        await dynamodb.updateTimeToLive({
+            TableName: table_prefix + name,
+            TimeToLiveSpecification: { 
+                AttributeName: options && options.ttlAttribute,
+                Enabled: true,
+            }
+        }).promise();
+    }
 }
 
 

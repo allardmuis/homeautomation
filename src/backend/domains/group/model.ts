@@ -28,6 +28,6 @@ groups.deleteOne = async id => groups.delete('id', id);
 
 
 (async () => {
-    try { await createTable('groups', {id: 'N'}); } catch (e) {}
+    await createTable('groups', {id: 'N'});
 })()
 

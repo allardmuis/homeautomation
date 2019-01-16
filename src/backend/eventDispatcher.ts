@@ -1,9 +1,11 @@
 export enum EventType {
     measurementCreated,
+    deviceDeleted,
 }
 
 const handlers = {
     [EventType.measurementCreated]: [] as Function[],
+    [EventType.deviceDeleted]: [] as Function[],
 };
 
 export const registerHandler = (type: EventType, handler: (event: any) => Promise<void>) => {

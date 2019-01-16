@@ -1,3 +1,4 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as  moment from 'moment';
 import * as React from 'react';
 import { NavLink } from "react-router-dom";
@@ -51,9 +52,12 @@ export class Groups extends React.Component<{}, IGroupListState> {
             <div className="col">
                 {!this.state.groups && <span>Loading...</span>}
                 {this.state.groups && this.state.groups.map(group => 
-                    <div className="card" style={{width: '18rem'}} key={group.id}>
+                    <div className="card" key={group.id}>
+                        <div className="card-header">
+                            {group.name}
+                            <a href="#" onClick={() => this.deleteGroup(group.id)}><FontAwesomeIcon icon="trash-alt" /></a>
+                        </div>
                         <div className="card-body">
-                            <h5 className="card-title">{group.name}</h5>
                             <dt>Device</dt><dd>
                                 {this.state.devices.length > 0 && group.deviceId && 
                                     <NavLink to={`/devices/${group.deviceId}`}>{this.state.devices.find(device => device.id === group.deviceId)!.name}</NavLink>
@@ -68,9 +72,9 @@ export class Groups extends React.Component<{}, IGroupListState> {
                 )}
                 {this.state.groups && !this.state.addGroup && <a href="#" onClick={() => this.setState({ addGroup: { id: (this.state.groups!.map(group => group.id).sort((a, b) => b - a)[0] || 0) + 1} })}>Add group</a>}
                 {this.state.addGroup &&
-                    <div className="card" style={{width: '18rem'}}>
+                    <div className="card">
+                        <div className="card-header">Add group</div>
                         <div className="card-body">
-                            <h5 className="card-title">Add group</h5>
                             <label>Id: <input type="number" value={this.state.addGroup.id} onChange={(e) => this.changeAdd('id', parseInt(e.target.value, 10))} /></label>
                             <label>Name: <input type="text" value={this.state.addGroup.name || ''} onChange={(e) => this.changeAdd('name', e.target.value)} /></label>
                             <label>Device: <select value={this.state.addGroup.deviceId} onChange={(e) => this.changeAdd('deviceId', e.target.value as any as number)} >
@@ -116,6 +120,14 @@ export class Groups extends React.Component<{}, IGroupListState> {
                 addGroup: null,
                 groups: [...(this.state.groups || []), response.body],
             });
+        }
+    }
+
+    private async deleteGroup(groupId: number) {
+        const response = await apiRequest('DELETE', '/groups/' + groupId);
+        if (response.status === 200) {
+            const groups = (this.state.groups || []).filter(group => group.id !== groupId);
+            this.setState({ groups });
         }
     }
 }

@@ -80,6 +80,7 @@ export class Device extends React.Component<IDeviceProps, IDeviceState> {
                         {this.state.graphOrTable === 'graph' && <MeasurementsGraph deviceId={this.state.device.id} />}
                     </div>
                 </div>
+                <a href="#" onClick={() => this.deleteDevice()}>Delete device</a>
             </>}
         </>
     }
@@ -97,5 +98,10 @@ export class Device extends React.Component<IDeviceProps, IDeviceState> {
         const device = { ...this.state.device!, [name]: value };
         this.setState({ device });
         apiRequest('POST', '/devices/' + this.state.device!.id, {[name]: value});
+    }
+
+    private deleteDevice() {
+        apiRequest('DELETE', '/devices/' + this.state.device!.id);
+        window.location.href = '/devices';
     }
 }

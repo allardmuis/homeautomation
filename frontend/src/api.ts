@@ -3,7 +3,7 @@ export interface IParams {
     [key: string]: number | string;
 }
 
-export async function apiRequest(method: 'POST' | 'GET', url: string, params?: IParams) {
+export async function apiRequest(method: 'POST' | 'GET' | 'DELETE', url: string, params?: IParams) {
 
     if (process.env.NODE_ENV === 'development') {
         url = 'http://localhost:5000'+ url;
@@ -15,6 +15,10 @@ export async function apiRequest(method: 'POST' | 'GET', url: string, params?: I
         return await get(url, params || {});
     }
 
+    if (method === 'DELETE') {
+        return await del(url, params || {});
+    }
+
     return await post(url, params || {});
 }
 
@@ -24,6 +28,20 @@ async function get(url: string, params: IParams) {
     });
 
     const response = await fetch(url);
+    return {
+        body: await parseBody(response),
+        status: response.status,
+    }
+}
+
+async function del(url: string, params: IParams) {
+    Object.keys(params).map((key, i) => {
+        url += (i === 0 ? '?' : '&') + key + '=' + params[key];
+    });
+
+    const response = await fetch(url, {
+        method: 'DELETE',
+    });
     return {
         body: await parseBody(response),
         status: response.status,

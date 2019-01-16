@@ -17,7 +17,7 @@ function loadApp() {
     app.use(bodyParser.json({ limit: '50mb' }));
     app.use((req, res, next) => {
         res.header("Access-Control-Allow-Origin", process.env.ALLOW_CORS);
-        res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         next();
       });

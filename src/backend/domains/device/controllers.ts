@@ -1,6 +1,7 @@
 import * as express from 'express';
 import { devices, IDevice } from './model';
 import { measurements } from '../measurement/model';
+import { dispatch, EventType } from '../../eventDispatcher';
 import * as Joi from 'joi';
 
 const deviceScheme = Joi.object({
@@ -29,6 +30,15 @@ export async function updateDevice(req: express.Request, res: express.Response) 
     const { id, ...updates } = device;
     await devices.updateOne(deviceId, updates);
     res.send(device);
+}
+
+export async function deleteDevice(req: express.Request, res: express.Response) {
+
+    const deviceId = parseInt(req.params.id, 10);
+    await devices.deleteOne(deviceId);
+    dispatch(EventType.deviceDeleted, deviceId);
+
+    res.send();
 }
 
 export async function listMeasurements(req: express.Request, res: express.Response) {

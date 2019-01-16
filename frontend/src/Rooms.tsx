@@ -1,8 +1,10 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as  moment from 'moment';
 import * as React from 'react';
 import { NavLink } from "react-router-dom";
 import { apiRequest, IParams } from './api';
 import { IDevice } from './Device';
+
 
 interface IRoom {
     id: number;
@@ -51,9 +53,12 @@ export class Rooms extends React.Component<{}, IRoomListState> {
             <div className="col">
                 {!this.state.rooms && <span>Loading...</span>}
                 {this.state.rooms && this.state.rooms.map(room => 
-                    <div className="card" style={{width: '18rem'}} key={room.id}>
+                    <div className="card" key={room.id}>
+                        <div className="card-header">
+                            {room.name}
+                            <a href="#" onClick={() => this.deleteRoom(room.id)}><FontAwesomeIcon icon="trash-alt" /></a>
+                        </div>
                         <div className="card-body">
-                            <h5 className="card-title">{room.name}</h5>
                             <dt>Device</dt><dd>
                                 {this.state.devices.length > 0 && room.deviceId && 
                                     <NavLink to={`/devices/${room.deviceId}`}>{this.state.devices.find(device => device.id === room.deviceId)!.name}</NavLink>
@@ -65,16 +70,16 @@ export class Rooms extends React.Component<{}, IRoomListState> {
                         </div>
                     </div>
                 )}
-                {this.state.rooms && !this.state.addRoom && <a href="#" onClick={() => this.setState({ addRoom: { id: (this.state.rooms!.map(room => room.id).sort()[0] || 0) + 1} })}>Add room</a>}
+                {this.state.rooms && !this.state.addRoom && <a href="#" onClick={() => this.setState({ addRoom: { id: (this.state.rooms!.map(room => room.id).sort((a, b) => b - a)[0] || 0) + 1} })}>Add room</a>}
                 {this.state.addRoom &&
-                    <div className="card" style={{width: '18rem'}}>
+                    <div className="card">
+                    <div className="card-header">Add room</div>
                         <div className="card-body">
-                            <h5 className="card-title">Add room</h5>
                             <label>Id: <input type="number" value={this.state.addRoom.id} onChange={(e) => this.changeAdd('id', parseInt(e.target.value, 10))} /></label>
                             <label>Name: <input type="text" value={this.state.addRoom.name || ''} onChange={(e) => this.changeAdd('name', e.target.value)} /></label>
                             <label>Device: <select value={this.state.addRoom.deviceId} onChange={(e) => this.changeAdd('deviceId', e.target.value as any as number)} >
                                     <option />
-                                    {this.state.devices.map(device => <option value={device.id}>{device.name}</option>)}
+                                    {this.state.devices.map(device => <option key={device.id} value={device.id}>{device.name}</option>)}
                                 </select>
                             </label>
                             <a href="#" onClick={() => this.addRoom()}>Add</a>
@@ -114,6 +119,14 @@ export class Rooms extends React.Component<{}, IRoomListState> {
                 addRoom: null,
                 rooms: [...(this.state.rooms || []), response.body!],
             });
+        }
+    }
+
+    private async deleteRoom(roomId: number) {
+        const response = await apiRequest('DELETE', '/rooms/' + roomId);
+        if (response.status === 200) {
+            const rooms = (this.state.rooms || []).filter(room => room.id !== roomId);
+            this.setState({ rooms });
         }
     }
 }

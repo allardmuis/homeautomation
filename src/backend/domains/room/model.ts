@@ -28,6 +28,6 @@ rooms.updateOne = async (id, updates) => rooms.update('id', id, updates);
 rooms.deleteOne = async id => rooms.delete('id', id);
 
 (async () => {
-    try { await createTable('rooms', {id: 'N'}); } catch (e) {}
+    await createTable('rooms', {id: 'N'});
 })()
 

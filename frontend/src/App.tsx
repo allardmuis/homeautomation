@@ -34,7 +34,7 @@ class App extends React.Component {
 const Home = () => <h2>Home</h2>;
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faSave } from '@fortawesome/free-solid-svg-icons'
-library.add(faEdit, faSave)
+import { faEdit, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+library.add(faEdit, faSave, faTrashAlt)
 
 export default App;

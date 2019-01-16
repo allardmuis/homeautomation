@@ -38,3 +38,9 @@ div#wrapper {
 .svg-inline--fa {
   margin-left: 10px;
 }
+
+.card {
+  width: 18rem;
+  margin: 10px;
+  float: left;
+}

@@ -22,6 +22,20 @@ export async function createMeassurement(req: express.Request, res: express.Resp
     }
     measurement.timestamp = new Date().getTime();
 
+    const hours = new Date().getHours();
+    const minutes = new Date().getMinutes();
+    let expireDays: number;
+    if (hours === 0) {
+        expireDays = 365;
+    } else if (minutes % 15 === 0) {
+        expireDays = 31;
+    } else if (minutes % 5 === 0) {
+        expireDays = 7;
+    } else {
+        expireDays = 2;
+    }
+    measurement.expires = Math.floor(new Date().getTime() / 1000) + (expireDays * 24 * 3600);
+
     await measurements.put(measurement);
     dispatch(EventType.measurementCreated, measurement);
 
