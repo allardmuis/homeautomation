@@ -59,9 +59,13 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
                 <option label="4 hours" value={4} />
                 <option label="8 hours" value={8} />
                 <option label="12 hours" value={12} />
-                <option label="24 hours" value={24} />
-                <option label="48 hours" value={48} />
-                <option label="168 hours" value={168} />
+                <option label="1 day" value={24} />
+                <option label="2 days" value={48} />
+                <option label="1 week" value={168} />
+                <option label="2 weeks" value={336} />
+                <option label="1 month" value={744} />
+                <option label="6 months" value={4380} />
+                <option label="1 year" value={8760} />
             </select>
             <a href="#" onClick={() => this.loadEarlier()}>Earlier</a>
             <a href="#" onClick={() => this.loadLater()}>Later</a>
@@ -127,16 +131,29 @@ class MeasurementsGraphInner extends React.Component<IMeasurementsTableProps, IM
         this.setState({ measurements: null });
         const response = await apiRequest('GET', '/devices/' + deviceId + '/measurements', { from: this.state.start, to: this.state.end });
 
+        let insertNullLimit: number;
+
         if (response.status === 200) {
             const measurements: IMeasurement[] = [];
             let lastTimestamp = 0; 
             for (const measurement of response.body as IMeasurement[]) {
-                if (lastTimestamp > 0 && lastTimestamp < (measurement.timestamp - 600000)) {
+
+                if (lastTimestamp < new Date().getTime() - (30 * 24 * 3600 * 1000)) {
+                    insertNullLimit = 3 * 60 * 60 * 1000;
+                } else if (lastTimestamp < new Date().getTime() - (7 * 24 * 3600 * 1000)) {
+                    insertNullLimit = 45 * 60 * 1000;
+                } else if (lastTimestamp < new Date().getTime() - (2 * 24 * 3600 * 1000)) {
+                    insertNullLimit = 15 * 60 * 1000;
+                } else {
+                    insertNullLimit = 5 * 60 * 1000;
+                }
+
+                if (lastTimestamp > 0 && lastTimestamp < (measurement.timestamp - insertNullLimit)) {
                     measurements.push({
                         deviceId: measurement.deviceId,
                         humidity: null,
                         temperature: null,
-                        timestamp: lastTimestamp + 600000,
+                        timestamp: lastTimestamp + insertNullLimit,
                     });
                 }
                 
